@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    volumes:
+      - ./.db:/var/lib/mysql    
+    env_file: ./server/dev.env
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+
+  server:
+    build: server
+    command: npm run dev
+    ports:
+      - 3000:3000
+    volumes:
+      - ./server:/open-tasks-server/source-code
+    env_file: ./server/dev.env
+    links:
+      - mysql
+    depends_on:
+      - mysql
+
+networks:
+  default:
+    name: open-tasks
