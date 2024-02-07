@@ -1,9 +1,9 @@
-// require('dotenv/config');
 const express = require(`express`);
 const cors = require(`cors`);
 
-const er = require(`./src/utils/error-handler`);
-const db = require(`./src/utils/db`);
+const db = require(`./src/utils/database`);
+const auth = require(`./src/utils/auth`);
+const handler = require(`./src/utils/handler`);
 const tasksRouter = require("./src/components/tasks/tasks-router");
 
 const PORT = process.env.PORT;
@@ -14,9 +14,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(db.getConnection);
 
-app.use(`/api/tasks`, tasksRouter);
+app.use(`/api/tasks`, [auth.authorizeUser], tasksRouter);
 
-app.use(er.errorHandler);
+app.use(handler.errorHandler);
 
 app.listen(PORT, ()=> {
     console.log(`Hi, I'm listening at ${ PORT }`);

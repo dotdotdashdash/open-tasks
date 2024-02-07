@@ -9,8 +9,8 @@ const pool = mysql.createPool({
 }); 
 
 function getConnection(req, res, next) {
-    req.connection = pool.promise();
-    console.log(`MySQL connection obtained`)
+    req.locals = {};
+    req.locals.connection = pool.promise();
     next();
 }
 
