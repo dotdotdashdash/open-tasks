@@ -2,28 +2,22 @@
 const express = require(`express`);
 const cors = require(`cors`);
 
+const er = require(`./src/utils/error-handler`);
 const db = require(`./src/utils/db`);
-const { errorHandler } = require(`./src/utils/error-handler`)
-
+const tasksRouter = require("./src/components/tasks/tasks-router");
 
 const PORT = process.env.PORT;
-
 const app = new express();
-
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(db.getConnection);
 
-app.use(db.getConnection)
+app.use(`/api/tasks`, tasksRouter);
 
-
-app.get(`/`, (req, res)=> {
-    res.send(`Workinggggggg`)
-});
-
-app.use(errorHandler);
+app.use(er.errorHandler);
 
 app.listen(PORT, ()=> {
-    console.log(`Hi, I'm listening at ${PORT}`);
+    console.log(`Hi, I'm listening at ${ PORT }`);
 });
