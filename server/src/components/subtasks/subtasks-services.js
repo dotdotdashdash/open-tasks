@@ -28,12 +28,15 @@ async function bulkInsert(connection, payload) {
     ];
 
     return await subtasksModel.bulkInsert(connection, payload, dbFields);
-
 }
 
-
+async function findSubtasksByUserId(connection, userId, conditions = {}) {
+    if (!userId) throw 'User ID is required';
+    return await subtasksModel.fetchSubtasksByUserId(connection, userId, conditions);
+}
 
 module.exports = {
     Subtask,
-    bulkInsert
+    bulkInsert,
+    findSubtasksByUserId
 }

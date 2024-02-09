@@ -1,18 +1,19 @@
 const mysql = require(`mysql2`)
 
-function insertQueryBuilder(tableName = ``, dbFieldsArray = [], payloadObjectArray =[{}]) {
-    if (!tableName || !dbFieldsArray.length || !payloadObjectArray.length) throw `Provide required data to build query`;
+function insertQueryBuilder(data = {}) {
+    let { tableName = ``, fields = [], payload =[{}] } = data;
+    if (!tableName || !fields.length || !payload.length) throw `Provide required data to build query`;
 
     let insertPayloadArray = []
-    for (let payloadObject of payloadObjectArray) {
+    for (let payloadObject of payload) {
         let dataArray = [];
-        for(let field of dbFieldsArray) {
+        for(let field of fields) {
             dataArray.push(payloadObject[field])
         }
         insertPayloadArray.push(dataArray);
     }
 
-    let rawSql = `INSERT INTO ${ tableName } (${ dbFieldsArray.join(`,`) }) VALUES ?` 
+    let rawSql = `INSERT INTO ${ tableName } (${ fields.join(`,`) }) VALUES ?`;
     return mysql.format(rawSql, [insertPayloadArray])
 }
 
