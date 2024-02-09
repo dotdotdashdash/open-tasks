@@ -24,8 +24,13 @@ async function fetchTasksByUserId(connection, userId, conditions) {
     if (dueDate) sql += ` AND
         DATE(due_date) = DATE(${ connection.escape(dueDate) })
     `;
-    if (limit) sql += ` LIMIT ${ connection.escape(parseInt(limit)) }`
-    if (limit && offset) sql += `, ${ connection.escape(parseInt(offset)) }`
+
+    if (limit && offset) {
+        sql += ` LIMIT ${ connection.escape(parseInt(offset)) }, ${ connection.escape(parseInt(limit)) }`;
+    } else if (limit) {
+        sql += ` LIMIT ${ connection.escape(parseInt(limit)) }`;
+    }
+
 
     const result = await connection.query(sql);
     return result[0]

@@ -7,7 +7,10 @@ function authorizeUser(req, res, next) {
 
     if(!authToken) {
         console.log('Request without auth header received');
-        throw 'Request without auth header received';
+        throwError({
+            code: 401,
+            message: `Please login to access the resource`
+        });
     }
 
     jwt.verify(authToken, jwtSecretKey, (err, userData)=> {
