@@ -5,6 +5,7 @@ const db = require(`./src/utils/database`);
 const auth = require(`./src/utils/auth`);
 const handler = require(`./src/utils/handler`);
 const tasksRouter = require("./src/components/tasks/tasks-router");
+const subtasksRouter = require("./src/components/subtasks/subtasks-router");
 
 const PORT = process.env.PORT;
 const app = new express();
@@ -12,9 +13,10 @@ const app = new express();
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(db.getConnection);
+app.use(db.setupConnection);
 
-app.use(`/api/tasks`, [auth.authorizeUser], tasksRouter);
+app.use(`/v1/api/user/tasks`, [auth.authorizeUser], tasksRouter);
+app.use(`/v1/api/user/subtasks`, [auth.authorizeUser], subtasksRouter);
 
 app.use(handler.errorHandler);
 

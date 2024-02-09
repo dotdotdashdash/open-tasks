@@ -15,8 +15,8 @@ function sendJSONResponse(res, responseData = {}) {
 function errorHandler(err, req, res, next) {
     console.error('ERROR OCCURED:', err);
 
-    const statusCode = err.code || 500;
-    const message = err.message || 'Internal Server Error';
+    const statusCode = err.httpErrorCode || 500; //TODO: HANDLE THIS error code can be different from http status codes
+    const message = err.errorMessage || 'Internal Server Error';
 
     res
         .status(statusCode)
@@ -30,8 +30,8 @@ function errorHandler(err, req, res, next) {
 function throwError(error = {}) {
 
     error.err = error.err
-    error.code = error.code || 500;
-    error.message = error.message || error || `Unknown error`
+    error.httpErrorCode = error.code || 500;
+    error.errorMessage = error.message || error || `Unknown error`
 
     throw error;
 }

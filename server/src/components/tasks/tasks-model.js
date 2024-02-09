@@ -1,9 +1,10 @@
 const { insertQueryBuilder } = require("../../helpers/sql-helper");
 
-
-async function fetchTasksByUserId(connection, userId) {
+async function fetchTasksByUserId(connection, userId, conditions) {
     if (!userId) throw 'User ID is required';
-    const sql = `
+    let { priority, dueDate, limit, offset } = conditions
+
+    let sql = `
         SELECT 
             id,
             title,
@@ -16,16 +17,25 @@ async function fetchTasksByUserId(connection, userId) {
             t.user_id = ${ connection.escape(userId) } AND
             t.deleted_at IS NULL
     `;
+
+    if (priority) sql += ` AND
+        priority = ${ connection.escape(priority) }
+    `;
+    if (dueDate) sql += ` AND
+        DATE(due_date) = DATE(${ connection.escape(dueDate) })
+    `;
+    if (limit) sql += ` LIMIT ${ connection.escape(parseInt(limit)) }`
+    if (limit && offset) sql += `, ${ connection.escape(parseInt(offset)) }`
+
     const result = await connection.query(sql);
     return result[0]
 }
 
 async function bulkInsert(connection, payload, fields) {
     const tableName = `tasks`;
-    const sql = insertQueryBuilder(tableName, fields, payload)
+    const sql = insertQueryBuilder(tableName, fields, payload);
 
-    const result = await connection.query(sql)
-
+    return await connection.query(sql);
 }
 
 module.exports = {

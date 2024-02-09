@@ -1,5 +1,5 @@
-const tasksModel = require(`./tasks-model`)
 const dayjs = require(`dayjs`)
+const tasksModel = require(`./tasks-model`)
 const handler = require(`./../../utils/handler`)
 
 class Task {
@@ -14,10 +14,6 @@ class Task {
         this.createdAt = data.created_at || data.createdAt;
         this.updatedAt = data.updated_at || data.updatedAt;
         this.deletedAt = data.deleted_at || data.deletedAt;
-    }
-
-    async findById(connection) {
-        if (!this.id) throw 'ID is required';
     }
 
     parsePayloadForInsert() {
@@ -50,9 +46,10 @@ class Task {
 
 }
 
-async function findTasksByUserId(connection, userId) {
-    if (!userId) throw 'User ID is required'
-    return await tasksModel.fetchTasksByUserId(connection, userId)
+async function findTasksByUserId(connection, userId, conditions = {}) {
+    if (!userId) throw 'User ID is required';
+
+    return await tasksModel.fetchTasksByUserId(connection, userId, conditions)
 }
 
 async function bulkInsert(connection, payload) {

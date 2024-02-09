@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
     host: process.env.MYSQL_HOST_IP,
@@ -8,10 +8,22 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE,
 }); 
 
-function getConnection(req, res, next) {
-    req.locals = {};
-    req.locals.connection = pool.promise();
-    next();
+async function setupConnection(req, res, next) {
+    await getConnection(req);
+    await releaseConnectionAfterSendingResponse(req, res);
+    next()
+
 }
 
-module.exports = { getConnection }
+async function getConnection(req) {
+    req.locals = {};
+    req.locals.connection = await pool.getConnection()
+}
+
+async function releaseConnectionAfterSendingResponse(req, res) {
+    res.on('finish', async () => {
+        req.locals.connection.release()
+    });
+}
+
+module.exports = { setupConnection }
