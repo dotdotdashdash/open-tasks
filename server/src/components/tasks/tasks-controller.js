@@ -84,8 +84,40 @@ async function createSubtasksForTask(req, res, next) {
     }
 }
 
+async function editTaskById(req, res, next) {
+    try {
+        const connection = req.locals.connection;
+        const { taskId } = req.params;
+        const editPayload = req.body;
+        const userId = req.locals.user.user_id
+
+        const task = new taskServices.Task({
+            id: taskId,
+            dueDate: editPayload.dueDate,
+            status: editPayload.status,
+            userId
+        });
+
+        console.log(`\n\n>>>>>------${new Date().toLocaleTimeString('en-us',{ timeZone: 'Asia/Calcutta', hour: '2-digit', minute: '2-digit', second: '2-digit',  fractionalSecondDigits: 3 })}------->>\n | file: tasks-controller.js:101 | editTaskById | task::`, task);
+
+
+        task.verifyTaskExistenceForUser(connection)
+
+        
+    } catch (error) {
+        
+    }
+
+}
+
+async function deleteTaskById(req, res, next) {
+
+}
+
 module.exports = {
     retrieveUserTasks,
     createTasksForUser,
-    createSubtasksForTask
+    createSubtasksForTask,
+    editTaskById,
+    deleteTaskById
 }

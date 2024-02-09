@@ -38,12 +38,17 @@ async function fetchTasksByUserId(connection, userId, conditions) {
 
 async function bulkInsert(connection, payload, fields) {
     const tableName = `tasks`;
-    const sql = insertQueryBuilder(tableName, fields, payload);
+    const sql = insertQueryBuilder({tableName, fields, payload});
 
     return await connection.query(sql);
 }
 
+async function doesTaskExists(connection, conditions) {
+
+}
+
 module.exports = {
     fetchTasksByUserId,
+    doesTaskExists,
     bulkInsert
 }

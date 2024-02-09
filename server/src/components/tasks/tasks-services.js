@@ -44,6 +44,14 @@ class Task {
         return 3;
     }
 
+    async verifyTaskExistenceForUser(connection) {
+        let conditions = {
+            user_id: this.userId,
+            task_id: this.id
+        }
+        return await tasksModel.doesTaskExists()
+    }
+
 }
 
 async function findTasksByUserId(connection, userId, conditions = {}) {

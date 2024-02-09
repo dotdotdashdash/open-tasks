@@ -1,6 +1,7 @@
 const mysql = require(`mysql2`)
 
 function insertQueryBuilder(data = {}) {
+
     let { tableName = ``, fields = [], payload =[{}] } = data;
     if (!tableName || !fields.length || !payload.length) throw `Provide required data to build query`;
 
