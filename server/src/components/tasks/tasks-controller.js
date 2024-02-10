@@ -97,17 +97,17 @@ async function editTaskById(req, res, next) {
             status: editPayload.status,
             userId
         });
+        await task.verifyTaskExistenceForUser(connection);
+        await task.update(connection);
 
-        console.log(`\n\n>>>>>------${new Date().toLocaleTimeString('en-us',{ timeZone: 'Asia/Calcutta', hour: '2-digit', minute: '2-digit', second: '2-digit',  fractionalSecondDigits: 3 })}------->>\n | file: tasks-controller.js:101 | editTaskById | task::`, task);
-
-
-        task.verifyTaskExistenceForUser(connection)
-
-        
+        sendJSONResponse(res, {
+            status: 200,
+            message: "Successfully updated the task",
+            data: {}
+        });
     } catch (error) {
-        
+        next(error)
     }
-
 }
 
 async function deleteTaskById(req, res, next) {

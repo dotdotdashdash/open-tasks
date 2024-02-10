@@ -28,7 +28,6 @@ function errorHandler(err, req, res, next) {
 };
 
 function throwError(error = {}) {
-
     error.err = error.err
     error.httpErrorCode = error.code || 500;
     error.errorMessage = error.message || error || `Unknown error`

@@ -1,3 +1,5 @@
+require(`./src/utils/cron-jobs`)
+
 const express = require(`express`);
 const cors = require(`cors`);
 

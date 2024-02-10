@@ -1,7 +1,6 @@
 const mysql = require(`mysql2`)
 
 function insertQueryBuilder(data = {}) {
-
     let { tableName = ``, fields = [], payload =[{}] } = data;
     if (!tableName || !fields.length || !payload.length) throw `Provide required data to build query`;
 
@@ -18,6 +17,13 @@ function insertQueryBuilder(data = {}) {
     return mysql.format(rawSql, [insertPayloadArray])
 }
 
+function updateQueryBuilder(data = {}) {
+    let { tableName, payload } = data;
+    let rawSql = `UPDATE ${ tableName } SET ? WHERE 1 = 1`
+
+    return mysql.format(rawSql, [payload])
+}
 module.exports = {
-    insertQueryBuilder
+    insertQueryBuilder,
+    updateQueryBuilder
 }

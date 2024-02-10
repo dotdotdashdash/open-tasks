@@ -1,6 +1,6 @@
 const dayjs = require(`dayjs`)
 const tasksModel = require(`./tasks-model`)
-const handler = require(`./../../utils/handler`)
+const { throwError } = require(`./../../utils/handler`)
 
 class Task {
     constructor(data = {}) {
@@ -33,7 +33,7 @@ class Task {
 
         let daysLeft = dueDate.startOf(`day`).diff(now.startOf(`day`), `day`);
 
-        if (daysLeft < 0) handler.throwError({
+        if (daysLeft < 0) throwError({
             code: 400,
             message: `Due date should be in future. Please check the due date of task with title - ${ this.title }`
         });
@@ -46,10 +46,26 @@ class Task {
 
     async verifyTaskExistenceForUser(connection) {
         let conditions = {
-            user_id: this.userId,
-            task_id: this.id
+            userId: this.userId,
+            taskId: this.id
         }
-        return await tasksModel.doesTaskExists()
+        let result = await tasksModel.doesTaskExist(connection, conditions);
+        if (!result) throwError({
+            code: 400,
+            message: `Task not found`
+        });
+    }
+
+    async update(connection) {
+        let updatePayload = {
+            due_date: this.dueDate,
+            status: this.status
+        }
+        let conditions = {
+            user_id: parseInt(this.userId),
+            task_id: parseInt(this.id)
+        }
+        await tasksModel.update(connection, updatePayload, conditions)
     }
 
 }

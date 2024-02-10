@@ -1,4 +1,4 @@
-const { insertQueryBuilder } = require("../../helpers/sql-helper");
+const { insertQueryBuilder, updateQueryBuilder } = require("../../helpers/sql-helper");
 
 async function fetchTasksByUserId(connection, userId, conditions) {
     if (!userId) throw 'User ID is required';
@@ -43,12 +43,34 @@ async function bulkInsert(connection, payload, fields) {
     return await connection.query(sql);
 }
 
-async function doesTaskExists(connection, conditions) {
+async function doesTaskExist(connection, conditions) {
+    const sql = `
+        SELECT EXISTS (
+            SELECT NULL 
+            FROM tasks
+            WHERE
+                id = ${ connection.escape(parseInt(conditions.taskId)) } AND
+                user_id = ${ connection.escape(parseInt(conditions.userId)) }
+        ) AS exist;
+    `;
+    let result = await connection.query(sql);
+    return result[0][0]?.exist
+}
 
+async function update(connection, payload, conditions) {
+    const tableName = `tasks`
+    let sql = updateQueryBuilder({ tableName, payload });
+    
+    sql += ` 
+        AND user_id = ${ connection.escape(conditions.user_id)}
+        AND id = ${ connection.escape(conditions.task_id)}
+    `;    
+    return await connection.query(sql);
 }
 
 module.exports = {
     fetchTasksByUserId,
-    doesTaskExists,
-    bulkInsert
+    doesTaskExist,
+    bulkInsert,
+    update
 }
