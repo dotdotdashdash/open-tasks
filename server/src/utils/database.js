@@ -26,4 +26,7 @@ async function releaseConnectionAfterSendingResponse(req, res) {
     });
 }
 
-module.exports = { setupConnection }
+module.exports = {
+    setupConnection,
+    dbPool: pool
+}

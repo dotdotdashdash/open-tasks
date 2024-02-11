@@ -91,17 +91,47 @@ async function doesTaskExist(connection, conditions) {
     return !!result[0][0]?.exist
 }
 
-async function update(connection, payload, conditions) {
+async function update(connection, payload, conditions, taskIdArray = []) {
     const tableName = `tasks t`;
     let sql = updateQueryBuilder({ tableName, payload });
-    
-    sql += ` AND t.id = ${ connection.escape(conditions.task_id)}`;
+
+    if (taskIdArray.length) {
+        sql += ` AND t.id IN (${ taskIdArray.join(`,`)})`
+    } else if (conditions) {
+        sql += ` AND t.id = ${ connection.escape(conditions.task_id)}`;
+    } else {
+        throw `task ID required`
+    }
     return await connection.query(sql);
+}
+
+async function findTasksDueBetweenTwoDates(connection, startDate, endDate) {
+    if (!startDate || !endDate) throw `Date required`;
+
+    const sql = `
+        SELECT
+            id,
+            user_id,
+            title,
+            description,
+            due_date,
+            status, 
+            priority
+        FROM tasks
+        WHERE
+            DATE(due_date) >= DATE("${ startDate }") AND
+            DATE(due_date) <= DATE("${ endDate }") AND
+            deleted_at IS NULL
+        ORDER BY due_date ASC
+    `;
+    let res = await connection.query(sql);
+    return res[0];
 }
 
 module.exports = {
     fetchTasksByUserId,
     fetchTaskBySubTaskId,
+    findTasksDueBetweenTwoDates,
     doesTaskExist,
     bulkInsert,
     update

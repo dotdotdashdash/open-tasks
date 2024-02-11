@@ -28,8 +28,8 @@ class Task {
         }
     }
 
-    computeTaskPriority() {
-        let now = dayjs();
+    computeTaskPriority(date) {
+        let now = dayjs(date) || dayjs();
         let dueDate = dayjs(this.dueDate);
 
         let daysLeft = dueDate.startOf(`day`).diff(now.startOf(`day`), `day`);
@@ -117,8 +117,39 @@ async function bulkInsert(connection, payload) {
     return await tasksModel.bulkInsert(connection, payload, dbFields);
 }
 
+async function updateTaskPriority(connection, date) {
+    let fourDaysFromDate = dayjs(date).add(4, 'days').format(`YYYY-MM-DD`)
+    let tasks = await tasksModel.findTasksDueBetweenTwoDates(connection, date, fourDaysFromDate);
+
+    let taskPriorityObject = { 0: [], 1: [], 2: [] };
+
+    for (let _task of tasks) {
+        let task = new Task(_task);
+
+        let newTaskPriority = task.computeTaskPriority();
+
+        if (![0, 1, 2].includes(newTaskPriority)) continue;
+        if (task.priority == newTaskPriority) continue;
+
+        taskPriorityObject[newTaskPriority].push(task);
+    }
+    
+    for (let priority in taskPriorityObject) {
+        if(!taskPriorityObject[priority].length) continue;
+
+        let updatePayload = { priority };
+        let taskIdArray = taskPriorityObject[priority].map(task => task.id)
+
+        console.log(`Updating priorities of tasks ${ taskIdArray.join(`, `) } to ${ priority }`)
+        await tasksModel.update(connection, updatePayload, null, taskIdArray);
+    }
+
+
+}
+
 module.exports = {
     Task,
     findTasksByUserId,
-    bulkInsert
+    bulkInsert,
+    updateTaskPriority
 };
