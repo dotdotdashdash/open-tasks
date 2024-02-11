@@ -37,7 +37,11 @@ async function editSubtaskById(req, res, next) {
             status: editPayload.status
         });
         await subtask.verifySubtaskExistenceForUser(connection, userId);
+
+        await connection.beginTransaction();
         await subtask.update(connection);
+        await subtask.updateParentTask(connection);
+        await connection.commit()
 
         sendJSONResponse(res, {
             status: 200,
@@ -45,6 +49,7 @@ async function editSubtaskById(req, res, next) {
             data: {}
         });
     } catch (error) {
+        await connection.rollback()
         next(error)
     }
 }

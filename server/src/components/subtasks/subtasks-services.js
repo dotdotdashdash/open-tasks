@@ -1,4 +1,5 @@
 const subtasksModel = require(`./subtasks-model`)
+const tasksModel = require(`./../tasks/tasks-model`)
 
 class Subtask {
     constructor(data = {}) {
@@ -39,6 +40,27 @@ class Subtask {
         let subtaskId = [ this.id ]
         await subtasksModel.update(connection, subtaskId, updatePayload)
     }
+
+    async updateParentTask(connection) {
+        let task = await tasksModel.fetchTaskBySubTaskId(connection, this.id);
+        let pendingSubtasks = task.subtasks.filter((_subtask) => !_subtask.status);
+
+        let taskStatus;
+
+        if (pendingSubtasks.length == 0) {
+            taskStatus = "DONE"
+        } else if (pendingSubtasks.length == task.subtasks.length) {
+            taskStatus = "TODO"
+        } else {
+            taskStatus = "IN_PROGRESS";
+        }
+
+        let taskUpdatePayload = {
+            status: taskStatus
+        }
+
+        await tasksModel.update(connection, taskUpdatePayload, { task_id: task.id });
+    }
 }
 
 async function bulkInsert(connection, payload) {
@@ -50,6 +72,7 @@ async function bulkInsert(connection, payload) {
 
     return await subtasksModel.bulkInsert(connection, payload, dbFields);
 }
+
 
 async function update(connection, subtaskIds = [], updatePayload) {
     if (!subtaskIds.length) return;

@@ -1,5 +1,37 @@
 const { insertQueryBuilder, updateQueryBuilder } = require("../../helpers/sql-helper");
 
+async function fetchTaskBySubTaskId(connection, subtaskId) {
+    if (!subtaskId) throw `Subtask ID is required`;
+
+    let sql = `
+        SELECT
+            t.id,
+            t.title,
+            t.description,
+            t.due_date,
+            t.status,
+            t.priority,
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', s.id,
+                        'description', s.description,
+                        'status', s.status
+                    )
+                ) AS subtasks
+                FROM subtasks s
+                WHERE s.task_id = t.id
+            ) AS subtasks
+        FROM tasks t
+        WHERE t.id = (
+            SELECT task_id 
+            FROM subtasks
+            WHERE id = ${ connection.escape(subtaskId) }
+        )
+    `;
+    const result = await connection.query(sql)
+    return result[0][0];
+}
 async function fetchTasksByUserId(connection, userId, conditions) {
     if (!userId) throw 'User ID is required';
     let { priority, dueDate, limit, offset } = conditions
@@ -33,7 +65,7 @@ async function fetchTasksByUserId(connection, userId, conditions) {
 
 
     const result = await connection.query(sql);
-    return result[0]
+    return result[0];
 }
 
 async function bulkInsert(connection, payload, fields) {
@@ -61,18 +93,13 @@ async function update(connection, payload, conditions) {
     const tableName = `tasks t`;
     let sql = updateQueryBuilder({ tableName, payload });
     
-    sql += ` 
-        AND t.user_id = ${ connection.escape(conditions.user_id)}
-        AND t.id = ${ connection.escape(conditions.task_id)}
-    `;    
-
-    console.log(`\n\n>>>>>------${new Date().toLocaleTimeString('en-us',{ timeZone: 'Asia/Calcutta', hour: '2-digit', minute: '2-digit', second: '2-digit',  fractionalSecondDigits: 3 })}------->>\n | file: tasks-model.js:69 | update | sql::`, sql);
-
+    sql += ` AND t.id = ${ connection.escape(conditions.task_id)}`;
     return await connection.query(sql);
 }
 
 module.exports = {
     fetchTasksByUserId,
+    fetchTaskBySubTaskId,
     doesTaskExist,
     bulkInsert,
     update

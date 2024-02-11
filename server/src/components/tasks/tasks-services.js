@@ -1,7 +1,7 @@
 const dayjs = require(`dayjs`)
 const { throwError } = require(`./../../utils/handler`);
-const tasksModel = require(`./tasks-model`)
-const subtaskServices = require("../subtasks/subtasks-services");
+const tasksModel = require(`./tasks-model`);
+const subtasksModel = require("../subtasks/subtasks-model");
 
 class Task {
     constructor(data = {}) {
@@ -71,13 +71,13 @@ class Task {
 
     async updateSubtasksIfTaskDone(connection) {
         if (this.status != "DONE") return;
-        let subtasksForTask = await subtaskServices.findSubtasksByTaskId(connection, this.id);
+        let subtasksForTask = await subtasksModel.fetchSubtasksByTaskId(connection, this.id)
         if (!subtasksForTask.length) return;
 
         let subtaskIds = subtasksForTask.map(subtask =>  subtask.id );
         let updatePayload = { status: 1 };
 
-        await subtaskServices.update(connection, subtaskIds, updatePayload);
+        await subtasksModel.update(connection, subtaskIds, updatePayload);
     }
 
 }
