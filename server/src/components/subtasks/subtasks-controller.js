@@ -1,4 +1,5 @@
-const { sendJSONResponse } = require("../../utils/handler");
+const { sendJSONResponse, throwError } = require("../../utils/handler");
+const { editSubtaskByIdSchema } = require("../../utils/validations");
 const subtaskServices = require("./subtasks-services");
 
 async function retrieveUserSubTasks(req, res, next) {
@@ -28,6 +29,11 @@ async function retrieveUserSubTasks(req, res, next) {
 async function editSubtaskById(req, res, next) {
     const connection = req.locals.connection;
     try {
+        let { error } = editSubtaskByIdSchema.validate(req.body);
+        if (error) throwError({
+            code: 400,
+            message: error.message
+        });
         const { subtaskId } = req.params;
         const editPayload = req.body;
         const userId = req.locals.user.user_id

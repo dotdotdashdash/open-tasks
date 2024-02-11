@@ -20,9 +20,14 @@ const editTaskByIdSchema = Joi.object({
     status: Joi.string().valid("TODO", "DONE", "IN_PROGRESS")
 });
 
+const editSubtaskByIdSchema = Joi.object({
+    status: Joi.number().valid(0,1).required()
+});
+
 
 module.exports = {
     createTasksSchema,
     createSubtasksForTaskSchema,
-    editTaskByIdSchema
+    editTaskByIdSchema,
+    editSubtaskByIdSchema
 }
