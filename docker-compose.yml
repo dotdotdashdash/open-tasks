@@ -9,7 +9,7 @@ services:
     volumes:
       - ./db-scripts:/docker-entrypoint-initdb.d
       - ./.db:/var/lib/mysql    
-    env_file: ./server/dev.env
+    env_file: ./dev.env
     ports:
       - "3306:3306"
     expose:
@@ -22,7 +22,7 @@ services:
       - 3000:3000
     volumes:
       - ./server:/open-tasks-server/source-code
-    env_file: ./server/dev.env
+    env_file: ./dev.env
     links:
       - mysql
     depends_on:
