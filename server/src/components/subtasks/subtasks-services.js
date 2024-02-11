@@ -17,7 +17,7 @@ class Subtask {
         this.insertPayload = {
             task_id: this.taskId,
             description: this.description,
-            status: 0,
+            status: this.status || 0,
         }
     }
 

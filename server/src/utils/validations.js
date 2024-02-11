@@ -6,8 +6,23 @@ const createTasksSchema = Joi.array().items(
         description: Joi.string(),
         due_date: Joi.date().required()
     })
-)
+);
+
+const createSubtasksForTaskSchema = Joi.array().items(
+    Joi.object({
+        description: Joi.string().required(),
+        status: Joi.number().valid(0,1)
+    })
+);
+
+const editTaskByIdSchema = Joi.object({
+    dueDate: Joi.date(),
+    status: Joi.string().valid("TODO", "DONE", "IN_PROGRESS")
+});
+
 
 module.exports = {
-    createTasksSchema
+    createTasksSchema,
+    createSubtasksForTaskSchema,
+    editTaskByIdSchema
 }

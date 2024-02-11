@@ -1,7 +1,7 @@
 const taskServices = require(`./tasks-services`);
 const subtaskServices = require("../subtasks/subtasks-services");
 const { sendJSONResponse, throwError } = require(`./../../utils/handler`);
-const { editTaskSchema } = require("../../utils/validations");
+const { createTasksSchema, createSubtasksForTaskSchema, editTaskByIdSchema } = require("../../utils/validations");
 
 async function retrieveUserTasks (req, res, next) {
     try {
@@ -30,7 +30,6 @@ async function retrieveUserTasks (req, res, next) {
 async function createTasksForUser(req, res, next) {
     try {
         let { error } = createTasksSchema.validate(req.body);
-
         if (error) throwError({
             code: 400,
             message: error.message
@@ -63,6 +62,11 @@ async function createTasksForUser(req, res, next) {
 
 async function createSubtasksForTask(req, res, next) {
     try {
+        let { error } = createSubtasksForTaskSchema.validate(req.body);
+        if (error) throwError({
+            code: 400,
+            message: error.message
+        });
         const connection = req.locals.connection;
         const subtasks = req.body;
         const { taskId } = req.params
@@ -95,6 +99,12 @@ async function createSubtasksForTask(req, res, next) {
 async function editTaskById(req, res, next) {
     const connection = req.locals.connection;
     try {
+        let { error } = editTaskByIdSchema.validate(req.body);
+        if (error) throwError({
+            code: 400,
+            message: error.message
+        });
+
         const { taskId } = req.params;
         const editPayload = req.body;
         const userId = req.locals.user.user_id
