@@ -2,6 +2,7 @@ const dayjs = require(`dayjs`)
 const { throwError } = require(`./../../utils/handler`);
 const tasksModel = require(`./tasks-model`);
 const subtasksModel = require("../subtasks/subtasks-model");
+const { initiateCall } = require("../../utils/phone-call");
 
 class Task {
     constructor(data = {}) {
@@ -143,13 +144,54 @@ async function updateTaskPriority(connection, date) {
         console.log(`Updating priorities of tasks ${ taskIdArray.join(`, `) } to ${ priority }`)
         await tasksModel.update(connection, updatePayload, null, taskIdArray);
     }
+}
+
+async function callUserWithLapsedTasks(connection, date) {
+    const twoDaysBefore = dayjs(date).subtract(2, `days`).format(`YYYY-MM-DD`);
+    const oneDayBefore = dayjs(date).subtract(1, `days`).format(`YYYY-MM-DD`);
+
+    const tasks = await tasksModel.findTasksDueBetweenTwoDates(connection, twoDaysBefore, oneDayBefore);
+
+    const usersToCall = tasks.map(task => task.user_id);
+    if (!usersToCall.length) {
+        console.log(`No users to call today!`);
+        return
+    }
+
+    const userInformation = await tasksModel.getUserInformation(connection, usersToCall);
+
+    let userPriorityObject = { 0: [], 1: [], 2: [] };
+    for (let user of userInformation) {
+        userPriorityObject[user.calling_priority].push(user);
+    }
+    
+    for (let priority in userPriorityObject) {
+        if (!userPriorityObject[priority].length) {
+            console.log(`No users with priority ${ priority } to call;`)
+            continue;
+        }
+
+        console.log(`Calling users with priority ${ priority}`);
+        for (let user of userPriorityObject[priority]) {
+            console.log(`Calling ${ user.name }`);
+            const phoneNumber = process.env.NODE_ENV == "test"
+                ? process.env.TWILIO_DEBUG_NUMBER
+                : user.phoneNumber;
+
+            await initiateCall(phoneNumber)
+        }
+    }
+
+    
 
 
 }
+
 
 module.exports = {
     Task,
     findTasksByUserId,
     bulkInsert,
-    updateTaskPriority
+    updateTaskPriority,
+    callUserWithLapsedTasks
 };

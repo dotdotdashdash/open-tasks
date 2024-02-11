@@ -128,10 +128,28 @@ async function findTasksDueBetweenTwoDates(connection, startDate, endDate) {
     return res[0];
 }
 
+async function getUserInformation(connection, userIds = []) {
+    if (!userIds.length) throw `ID required`;
+
+    const sql = `
+        SELECT
+            id,
+            name,
+            phone_number,
+            calling_priority
+        FROM users
+        WHERE id IN (${ userIds.join(`,`)});
+    `;
+    let res = await connection.query(sql);
+    return res[0];
+
+}
+
 module.exports = {
     fetchTasksByUserId,
     fetchTaskBySubTaskId,
     findTasksDueBetweenTwoDates,
+    getUserInformation,
     doesTaskExist,
     bulkInsert,
     update
