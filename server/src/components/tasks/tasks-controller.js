@@ -1,6 +1,7 @@
 const taskServices = require(`./tasks-services`);
 const subtaskServices = require("../subtasks/subtasks-services");
 const { sendJSONResponse, throwError } = require(`./../../utils/handler`);
+const { editTaskSchema } = require("../../utils/validations");
 
 async function retrieveUserTasks (req, res, next) {
     try {
@@ -28,6 +29,13 @@ async function retrieveUserTasks (req, res, next) {
 
 async function createTasksForUser(req, res, next) {
     try {
+        let { error } = createTasksSchema.validate(req.body);
+
+        if (error) throwError({
+            code: 400,
+            message: error.message
+        });
+
         const user = req.locals.user
         const connection = req.locals.connection;
         const tasks = req.body;
