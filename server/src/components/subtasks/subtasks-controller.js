@@ -23,7 +23,38 @@ async function retrieveUserSubTasks(req, res, next) {
     } catch (error) {
         next(error)
     }
-
 }
 
-module.exports = { retrieveUserSubTasks}
+async function editSubtaskById(req, res, next) {
+    try {
+        const connection = req.locals.connection;
+        const { subtaskId } = req.params;
+        const editPayload = req.body;
+        const userId = req.locals.user.user_id
+
+        const subtask = new subtaskServices.Subtask({
+            id: subtaskId,
+            status: editPayload.status
+        });
+        await subtask.verifySubtaskExistenceForUser(connection, userId);
+        await subtask.update(connection);
+
+        sendJSONResponse(res, {
+            status: 200,
+            message: "Successfully updated the subtask",
+            data: {}
+        });
+    } catch (error) {
+        next(error)
+    }
+}
+
+async function deleteSubtaskById(req, res, next) {
+    
+}
+
+module.exports = {
+    retrieveUserSubTasks,
+    deleteSubtaskById,
+    editSubtaskById
+}

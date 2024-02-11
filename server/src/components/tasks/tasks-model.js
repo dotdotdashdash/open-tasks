@@ -47,24 +47,27 @@ async function doesTaskExist(connection, conditions) {
     const sql = `
         SELECT EXISTS (
             SELECT NULL 
-            FROM tasks
+            FROM tasks t
             WHERE
-                id = ${ connection.escape(parseInt(conditions.taskId)) } AND
-                user_id = ${ connection.escape(parseInt(conditions.userId)) }
+                t.id = ${ connection.escape(parseInt(conditions.taskId)) } AND
+                t.user_id = ${ connection.escape(parseInt(conditions.userId)) }
         ) AS exist;
     `;
     let result = await connection.query(sql);
-    return result[0][0]?.exist
+    return !!result[0][0]?.exist
 }
 
 async function update(connection, payload, conditions) {
-    const tableName = `tasks`
+    const tableName = `tasks t`;
     let sql = updateQueryBuilder({ tableName, payload });
     
     sql += ` 
-        AND user_id = ${ connection.escape(conditions.user_id)}
-        AND id = ${ connection.escape(conditions.task_id)}
+        AND t.user_id = ${ connection.escape(conditions.user_id)}
+        AND t.id = ${ connection.escape(conditions.task_id)}
     `;    
+
+    console.log(`\n\n>>>>>------${new Date().toLocaleTimeString('en-us',{ timeZone: 'Asia/Calcutta', hour: '2-digit', minute: '2-digit', second: '2-digit',  fractionalSecondDigits: 3 })}------->>\n | file: tasks-model.js:69 | update | sql::`, sql);
+
     return await connection.query(sql);
 }
 

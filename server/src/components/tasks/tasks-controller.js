@@ -85,8 +85,8 @@ async function createSubtasksForTask(req, res, next) {
 }
 
 async function editTaskById(req, res, next) {
+    const connection = req.locals.connection;
     try {
-        const connection = req.locals.connection;
         const { taskId } = req.params;
         const editPayload = req.body;
         const userId = req.locals.user.user_id
@@ -98,7 +98,11 @@ async function editTaskById(req, res, next) {
             userId
         });
         await task.verifyTaskExistenceForUser(connection);
+
+        await connection.beginTransaction();
         await task.update(connection);
+        await task.updateSubtasksIfTaskDone(connection);
+        await connection.commit()
 
         sendJSONResponse(res, {
             status: 200,
@@ -106,6 +110,7 @@ async function editTaskById(req, res, next) {
             data: {}
         });
     } catch (error) {
+        await connection.rollback();
         next(error)
     }
 }

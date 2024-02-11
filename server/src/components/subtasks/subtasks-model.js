@@ -1,10 +1,26 @@
-const { insertQueryBuilder } = require("../../helpers/sql-helper");
+const { insertQueryBuilder, updateQueryBuilder } = require("../../helpers/sql-helper");
 
 async function bulkInsert(connection, payload, fields) {
     const tableName = `subtasks`;
     const sql = insertQueryBuilder({ tableName, fields, payload });
 
     return await connection.query(sql);
+}
+
+async function fetchSubtasksByTaskId(connection, taskId) {
+    if (!taskId) throw 'Task ID is required';
+    
+    let sql = `
+        SELECT
+            s.id,
+            s.task_id,
+            s.description,
+            s.status
+        FROM subtasks s
+        WHERE s.task_id = ${ connection.escape(parseInt(taskId))}
+    `;
+    const result = await connection.query(sql);
+    return result[0]
 }
 
 async function fetchSubtasksByUserId(connection, userId, conditions) {
@@ -41,7 +57,35 @@ async function fetchSubtasksByUserId(connection, userId, conditions) {
     return result[0]
 }
 
+async function update(connection, subtaskIds = [], payload = {}) {
+    if (!subtaskIds.length) return;
+    const tableName = `subtasks`;
+
+    let sql = updateQueryBuilder({ tableName, payload });
+    sql += ` AND id IN (${ subtaskIds.join(`,`)})`;
+
+    return await connection.query(sql);
+}
+
+async function doesSubtaskExist(connection, conditions) {
+    const sql = `
+        SELECT EXISTS (
+            SELECT NULL
+            FROM subtasks s
+            JOIN tasks t ON t.id = s.task_id
+            WHERE
+                s.id = ${ connection.escape(parseInt(conditions.subtaskId)) } AND
+                t.user_id = ${ connection.escape(parseInt(conditions.userId)) }
+        ) AS exist;
+    `;
+    let result = await connection.query(sql);
+    return !!result[0][0]?.exist
+}
+
 module.exports = {
     bulkInsert,
-    fetchSubtasksByUserId
+    doesSubtaskExist,
+    update,
+    fetchSubtasksByUserId,
+    fetchSubtasksByTaskId,
 }

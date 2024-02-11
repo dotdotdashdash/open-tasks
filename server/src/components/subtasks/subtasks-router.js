@@ -7,7 +7,10 @@ subtasksRouter
     .route(`/`)
     .get(subtasksController.retrieveUserSubTasks)
 
+subtasksRouter
+    .route(`/:subtaskId`)
+    .put(subtasksController.editSubtaskById)
+    .delete(subtasksController.deleteSubtaskById)
+
+
 module.exports = subtasksRouter;
-
-
-
