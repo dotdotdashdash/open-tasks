@@ -59,13 +59,16 @@ async function fetchSubtasksByUserId(connection, userId, conditions) {
     return result[0]
 }
 
-async function update(connection, subtaskIds = [], payload = {}) {
-    if (!subtaskIds.length) return;
+async function update(connection, subtaskIds = [], payload = {}, taskId) {
+    if (!subtaskIds.length && !taskId) throw `ID required`;
     const tableName = `subtasks`;
 
     let sql = updateQueryBuilder({ tableName, payload });
-    sql += ` AND id IN (${ subtaskIds.join(`,`)})`;
-
+    if (subtaskIds.length) {
+        subtaskIds = subtaskIds.map(id => connection.escape(id));
+        sql += ` AND id IN (${ subtaskIds.join(`,`)})`;
+    }
+    if (taskId) sql += ` AND task_id = ${ connection.escape(taskId) }`
     return await connection.query(sql);
 }
 
@@ -85,17 +88,10 @@ async function doesSubtaskExist(connection, conditions) {
     return !!result[0][0]?.exist
 }
 
-async function addDeletedAtForSubtask(connection, subtaskIds = []) {
-    let sql = `DELETE FROM subtasks s WHERE s.id IN (?)`
-    return await connection.query(sql, [subtaskIds])
-
-}
-
 module.exports = {
     bulkInsert,
     doesSubtaskExist,
     update,
     fetchSubtasksByUserId,
     fetchSubtasksByTaskId,
-    addDeletedAtForSubtask
 }

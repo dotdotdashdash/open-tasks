@@ -116,6 +116,28 @@ async function editTaskById(req, res, next) {
 }
 
 async function softDeleteTaskById(req, res, next) {
+    const connection = req.locals.connection;
+    try {
+        const { taskId } = req.params;
+        const userId = req.locals.user.user_id
+
+        const task = new taskServices.Task({ id: taskId, userId });
+        await task.verifyTaskExistenceForUser(connection);
+
+        await connection.beginTransaction();
+        await task.softDelete(connection);
+        await task.softDeleteSubTasks(connection);
+        await connection.commit()
+
+        sendJSONResponse(res, {
+            status: 200,
+            message: "Successfully deleted the task",
+            data: {}
+        });
+    } catch (error) {
+        await connection.rollback();
+        next(error)
+    }
 
 }
 

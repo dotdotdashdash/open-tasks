@@ -80,6 +80,22 @@ class Task {
         await subtasksModel.update(connection, subtaskIds, updatePayload);
     }
 
+    async softDelete(connection) {
+        if (!this.id) throw 'ID is required';
+        let deletePayload = { deleted_at: new Date };
+        let conditions = {
+            task_id: parseInt(this.id)
+        }
+        return await tasksModel.update(connection, deletePayload, conditions);
+    }
+
+    async softDeleteSubTasks(connection) {
+        if (!this.id) throw 'ID is required';
+        let deletePayload = { deleted_at: new Date };
+
+        return await subtasksModel.update(connection, [], deletePayload, parseInt(this.id));
+    }
+
 }
 
 async function findTasksByUserId(connection, userId, conditions = {}) {
