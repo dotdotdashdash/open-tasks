@@ -8,6 +8,7 @@ const auth = require(`./src/utils/auth`);
 const handler = require(`./src/utils/handler`);
 const tasksRouter = require("./src/components/tasks/tasks-router");
 const subtasksRouter = require("./src/components/subtasks/subtasks-router");
+const { debugCronJobRoutines } = require("./src/utils/scheduler");
 
 const PORT = process.env.PORT;
 const app = new express();
@@ -19,6 +20,7 @@ app.use(db.setupConnection);
 
 app.use(`/v1/api/user/tasks`, [auth.authorizeUser], tasksRouter);
 app.use(`/v1/api/user/subtasks`, [auth.authorizeUser], subtasksRouter);
+app.use(`/v1/api/debug/cronjobs`, [auth.authorizeUser], debugCronJobRoutines )
 
 app.use(handler.errorHandler);
 

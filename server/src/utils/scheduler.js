@@ -32,4 +32,17 @@ async function callUserWithLapsedTasks(time) {
     }
 }
 
-module.exports = { priorityUpdationRoutine, callUserWithLapsedTasks }
+async function debugCronJobRoutines(req, res) {
+    console.log('Triggered cron jobs');
+
+    priorityUpdationRoutine();
+    callUserWithLapsedTasks()
+
+    res.end("Triggered")
+}
+
+module.exports = {
+    priorityUpdationRoutine,
+    callUserWithLapsedTasks,
+    debugCronJobRoutines
+}
