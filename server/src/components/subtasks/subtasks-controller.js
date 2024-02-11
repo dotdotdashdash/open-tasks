@@ -26,8 +26,8 @@ async function retrieveUserSubTasks(req, res, next) {
 }
 
 async function editSubtaskById(req, res, next) {
+    const connection = req.locals.connection;
     try {
-        const connection = req.locals.connection;
         const { subtaskId } = req.params;
         const editPayload = req.body;
         const userId = req.locals.user.user_id
@@ -54,12 +54,29 @@ async function editSubtaskById(req, res, next) {
     }
 }
 
-async function deleteSubtaskById(req, res, next) {
-    
+async function softDeleteSubtaskById(req, res, next) {
+    try {
+        const connection = req.locals.connection;
+        const { subtaskId } = req.params;
+        const userId = req.locals.user.user_id
+
+        const subtask = new subtaskServices.Subtask({ id: subtaskId });
+        await subtask.verifySubtaskExistenceForUser(connection, userId);
+
+        await subtask.softDelete(connection);
+
+        sendJSONResponse(res, {
+            status: 200,
+            message: "Successfully deleted the subtask",
+            data: {}
+        });
+    } catch (error) {
+        next(error)
+    }
 }
 
 module.exports = {
     retrieveUserSubTasks,
-    deleteSubtaskById,
+    softDeleteSubtaskById,
     editSubtaskById
 }

@@ -27,7 +27,8 @@ async function fetchTaskBySubTaskId(connection, subtaskId) {
             SELECT task_id 
             FROM subtasks
             WHERE id = ${ connection.escape(subtaskId) }
-        )
+        ) AND
+        t.deleted_at IS NULL 
     `;
     const result = await connection.query(sql)
     return result[0][0];
@@ -82,7 +83,8 @@ async function doesTaskExist(connection, conditions) {
             FROM tasks t
             WHERE
                 t.id = ${ connection.escape(parseInt(conditions.taskId)) } AND
-                t.user_id = ${ connection.escape(parseInt(conditions.userId)) }
+                t.user_id = ${ connection.escape(parseInt(conditions.userId)) } AND
+                t.deleted_at IS NULL
         ) AS exist;
     `;
     let result = await connection.query(sql);

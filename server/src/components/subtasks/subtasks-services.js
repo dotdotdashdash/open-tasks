@@ -1,5 +1,6 @@
 const subtasksModel = require(`./subtasks-model`)
-const tasksModel = require(`./../tasks/tasks-model`)
+const tasksModel = require(`./../tasks/tasks-model`);
+const { throwError } = require("../../utils/handler");
 
 class Subtask {
     constructor(data = {}) {
@@ -61,6 +62,14 @@ class Subtask {
 
         await tasksModel.update(connection, taskUpdatePayload, { task_id: task.id });
     }
+
+    async softDelete(connection) {
+        if (!this.id) throw 'ID is required';
+        let subtaskId = [ parseInt(this.id) ];
+        let deletePayload = { deleted_at: new Date };
+
+        return await subtasksModel.update(connection, subtaskId, deletePayload);
+    }
 }
 
 async function bulkInsert(connection, payload) {
@@ -72,7 +81,6 @@ async function bulkInsert(connection, payload) {
 
     return await subtasksModel.bulkInsert(connection, payload, dbFields);
 }
-
 
 async function update(connection, subtaskIds = [], updatePayload) {
     if (!subtaskIds.length) return;

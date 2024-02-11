@@ -10,7 +10,7 @@ subtasksRouter
 subtasksRouter
     .route(`/:subtaskId`)
     .put(subtasksController.editSubtaskById)
-    .delete(subtasksController.deleteSubtaskById)
+    .delete(subtasksController.softDeleteSubtaskById)
 
 
 module.exports = subtasksRouter;

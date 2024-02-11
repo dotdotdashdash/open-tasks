@@ -17,7 +17,9 @@ async function fetchSubtasksByTaskId(connection, taskId) {
             s.description,
             s.status
         FROM subtasks s
-        WHERE s.task_id = ${ connection.escape(parseInt(taskId))}
+        WHERE
+            s.task_id = ${ connection.escape(parseInt(taskId))} AND
+            s.deleted_at IS NULL
     `;
     const result = await connection.query(sql);
     return result[0]
@@ -75,11 +77,18 @@ async function doesSubtaskExist(connection, conditions) {
             JOIN tasks t ON t.id = s.task_id
             WHERE
                 s.id = ${ connection.escape(parseInt(conditions.subtaskId)) } AND
-                t.user_id = ${ connection.escape(parseInt(conditions.userId)) }
+                t.user_id = ${ connection.escape(parseInt(conditions.userId)) } AND
+                s.deleted_at IS NULL
         ) AS exist;
     `;
     let result = await connection.query(sql);
     return !!result[0][0]?.exist
+}
+
+async function addDeletedAtForSubtask(connection, subtaskIds = []) {
+    let sql = `DELETE FROM subtasks s WHERE s.id IN (?)`
+    return await connection.query(sql, [subtaskIds])
+
 }
 
 module.exports = {
@@ -88,4 +97,5 @@ module.exports = {
     update,
     fetchSubtasksByUserId,
     fetchSubtasksByTaskId,
+    addDeletedAtForSubtask
 }

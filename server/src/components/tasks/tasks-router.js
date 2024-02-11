@@ -15,6 +15,6 @@ tasksRouter
 tasksRouter
     .route(`/:taskId`)
     .put(taskController.editTaskById)
-    .delete(taskController.deleteTaskById)
+    .delete(taskController.softDeleteTaskById)
 
 module.exports = tasksRouter;

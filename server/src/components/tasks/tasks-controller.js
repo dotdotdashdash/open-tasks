@@ -115,14 +115,14 @@ async function editTaskById(req, res, next) {
     }
 }
 
-async function deleteTaskById(req, res, next) {
+async function softDeleteTaskById(req, res, next) {
 
 }
 
 module.exports = {
-    retrieveUserTasks,
-    createTasksForUser,
     createSubtasksForTask,
+    createTasksForUser,
+    softDeleteTaskById,
+    retrieveUserTasks,
     editTaskById,
-    deleteTaskById
 }
