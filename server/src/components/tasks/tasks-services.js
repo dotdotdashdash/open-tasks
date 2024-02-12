@@ -10,7 +10,7 @@ class Task {
         this.userId = data.user_id || data.userId ;
         this.title = data.title;
         this.description = data.description;
-        this.dueDate = data.due_date || data.dueDate;
+        this.dueDate = dayjs(data.due_date || data.dueDate).format(`YYYY-MM-DD`)
         this.status = data.status;
         this.priority = data.priority;
         this.createdAt = data.created_at || data.createdAt;
@@ -63,7 +63,7 @@ class Task {
             due_date: this.dueDate,
             status: this.status,
             ...this.title && { title: this.title },
-            ...this.description && { title: this.description }
+            ...this.description && { description: this.description }
         }
         let conditions = {
             user_id: parseInt(this.userId),
