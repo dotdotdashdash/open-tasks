@@ -16,6 +16,8 @@ const createSubtasksForTaskSchema = Joi.array().items(
 );
 
 const editTaskByIdSchema = Joi.object({
+    title:Joi.string(),
+    description: Joi.string(),
     dueDate: Joi.date(),
     status: Joi.string().valid("TODO", "DONE", "IN_PROGRESS")
 });

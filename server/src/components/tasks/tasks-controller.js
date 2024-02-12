@@ -113,6 +113,8 @@ async function editTaskById(req, res, next) {
             id: taskId,
             dueDate: editPayload.dueDate,
             status: editPayload.status,
+            title: editPayload.title,
+            description: editPayload.description,
             userId
         });
         await task.verifyTaskExistenceForUser(connection);

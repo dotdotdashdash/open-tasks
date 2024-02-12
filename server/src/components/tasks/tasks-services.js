@@ -61,7 +61,9 @@ class Task {
     async update(connection) {
         let updatePayload = {
             due_date: this.dueDate,
-            status: this.status
+            status: this.status,
+            ...this.title && { title: this.title },
+            ...this.description && { title: this.description }
         }
         let conditions = {
             user_id: parseInt(this.userId),
