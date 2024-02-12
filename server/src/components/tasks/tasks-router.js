@@ -1,20 +1,21 @@
 const express = require(`express`);
-const taskController = require(`./tasks-controller`) 
+const taskController = require(`./tasks-controller`); 
+const { authorizeUser } = require("../../utils/auth");
 
 const tasksRouter = express.Router();
 
 tasksRouter
     .route(`/`)
-    .get(taskController.retrieveUserTasks)
-    .post(taskController.createTasksForUser)
+    .get(authorizeUser, taskController.retrieveUserTasks)
+    .post(authorizeUser, taskController.createTasksForUser)
 
 tasksRouter
     .route(`/:taskId/subtasks`)
-    .post(taskController.createSubtasksForTask)
+    .post(authorizeUser, taskController.createSubtasksForTask)
 
 tasksRouter
     .route(`/:taskId`)
-    .put(taskController.editTaskById)
-    .delete(taskController.softDeleteTaskById)
+    .put(authorizeUser, taskController.editTaskById)
+    .delete(authorizeUser, taskController.softDeleteTaskById)
 
 module.exports = tasksRouter;

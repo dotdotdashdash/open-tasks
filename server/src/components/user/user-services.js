@@ -9,10 +9,12 @@ class User {
     }
 
     async signJwt() {
-        this.token = jwt.sign(
-            { user_id: this._id },
-            process.env.JWT_SECRET_KEY,
-            { expiresIn: '1d' });
+        this.token = jwt.sign({
+            user_id: this.id,
+            name: this.name
+        },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: '1 days' });
     }
 }
 

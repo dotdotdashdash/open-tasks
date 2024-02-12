@@ -1,4 +1,4 @@
-const { sendJSONResponse, throwError } = require("../../../utils/handler");
+const { throwError, sendJSONResponse } = require("../../utils/handler");
 const { User, findUserByNameAndPhone } = require("./user-services");
 
 async function logInUser(req, res, next) {

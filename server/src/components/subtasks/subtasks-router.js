@@ -1,16 +1,17 @@
 const express = require(`express`);
 const subtasksController = require(`./subtasks-controller`);
+const { authorizeUser } = require("../../utils/auth");
 
 const subtasksRouter = express.Router();
 
 subtasksRouter
     .route(`/`)
-    .get(subtasksController.retrieveUserSubTasks)
+    .get(authorizeUser, subtasksController.retrieveUserSubTasks)
 
 subtasksRouter
     .route(`/:subtaskId`)
-    .put(subtasksController.editSubtaskById)
-    .delete(subtasksController.softDeleteSubtaskById)
+    .put(authorizeUser, subtasksController.editSubtaskById)
+    .delete(authorizeUser, subtasksController.softDeleteSubtaskById)
 
 
 module.exports = subtasksRouter;
