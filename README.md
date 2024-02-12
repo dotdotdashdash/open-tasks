@@ -32,3 +32,6 @@ Supported endpoints:
 
   - DELETE: /v1/api/subtasks/{ subtask_id }
     - Endpoint to delete a specific subtask.
+
+  - POST: /v1/api/user/login
+    - To generate a jwt token using name and phonenumber of the user

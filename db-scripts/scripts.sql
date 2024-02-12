@@ -10,9 +10,9 @@ CREATE TABLE `users` (
 -- initiate users table with some data
 INSERT INTO users (name, phone_number, calling_priority) 
 VALUES 
-	("Ismail Test 1", "1234567890", 0),
-	("Ismail Test 2", "9876543210", 1),
-	("Ismail Test 3", "8877665544", 2);
+	("test-user-1", "1122334455", 0),
+	("test-user-2", "2233445566", 1),
+	("test-user-3", "3344556677", 2);
 
 -- tasks table definition
 CREATE TABLE `tasks` (
